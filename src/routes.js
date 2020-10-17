@@ -3,26 +3,32 @@ import { Route } from "react-router-dom";
 import Hoc from "./hoc/hoc";
 
 import Login from "./containers/Login";
+import AdminLogin from "./containers/AdminLogin";
 import Signup from "./containers/Signup";
-import HomepageLayout from "./containers/Home";
-import ProductList from "./containers/ProductList";
-import ProductDetail from "./containers/ProductDetail";
-import OrderSummary from "./containers/OrderSummary";
-import Checkout from "./containers/Checkout";
+import AdminSignup from "./containers/AdminSignup";
 import Profile from "./containers/Profile";
-import MyDashboard from "./containers/MyDashboard";
+import AdminProfile from "./containers/AdminProfile";
+import SubscriptionProducts from "./containers/SubscriptionProducts";
+import CardPayment from "./containers/CardPayment";
+import UserLoans from "./containers/UserLoans";
+import AllLoans from "./containers/AllLoans";
+import LoansDetail from "./containers/LoansDetail";
+import UserLoansDetail from "./containers/UserLoansDetail";
 
 const BaseRouter = () => (
   <Hoc>
-    <Route exact path="/products" component={ProductList} />
-    <Route path="/products/:productID" component={ProductDetail} />
-    <Route path="/login" component={Login} />
-    <Route path="/signup" component={Signup} />
-    <Route path="/order-summary" component={OrderSummary} />
-    <Route path="/checkout" component={Checkout} />
-    <Route path="/profile" component={Profile} />
-    <Route path="/dashboard" component={MyDashboard} />
-    <Route exact path="/" component={HomepageLayout} />
+    <Route exact path="/login" component={Login} />
+    <Route exact path="/admin-login" component={AdminLogin} />
+    <Route exact path="/signup" component={Signup} />
+    <Route exact path="/admin-signup" component={AdminSignup} />
+    <Route exact path="/profile" component={Profile} />
+    <Route exact path="/admin-profile" component={AdminProfile} />
+    <Route exact path="/products" component={SubscriptionProducts} />
+    <Route exact path="/card-payment" component={CardPayment} />
+    <Route exact path="/" component={UserLoans} />
+    <Route exact path="/all-loans" component={AllLoans} />
+    <Route exact path="/all-loans/:loanId" component={LoansDetail} />
+    <Route exact path="/user-loans/:loanId" component={UserLoansDetail} />
   </Hoc>
 );
 

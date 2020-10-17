@@ -1,13 +1,22 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include, re_path
+from django.urls import path, include
 from django.views.generic import TemplateView
+from core.api.views import (
+    UserRegistrationView, 
+    AdminRegistrationView, 
+    UserLoginView,
+    AdminLoginView
+)
 
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
-    path('rest-auth/', include('rest_auth.urls')),
-    path('rest-auth/registration/', include('rest_auth.registration.urls')),
+    # path('rest-auth/', include('rest_auth.urls')),
+    path('registration/', UserRegistrationView.as_view(), name='registration'),
+    path('admin-registration/', AdminRegistrationView.as_view(), name='admin-registration'),
+    path('user-login/', UserLoginView.as_view(), name='user-login'),
+    path('admin-login/', AdminLoginView.as_view(), name='admin-login'),
     path('admin/', admin.site.urls),
     path('api/', include('core.api.urls')),
 ]

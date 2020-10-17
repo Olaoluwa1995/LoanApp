@@ -1,71 +1,72 @@
 import axios from "axios";
 import * as actionTypes from "./actionTypes";
 import {
-  registerURL,
-  loginURL,
+  adminRegisterURL,
+  adminLoginURL
 } from "../../constants";
 
-export const authStart = () => {
+export const adminAuthStart = () => {
   return {
-    type: actionTypes.AUTH_START,
+    type: actionTypes.ADMIN_START,
   };
 };
 
-export const authSuccess = (token) => {
+export const adminAuthSuccess = (adminToken) => {
   return {
-    type: actionTypes.AUTH_SUCCESS,
-    token: token,
+    type: actionTypes.ADMIN_SUCCESS,
+    adminToken: adminToken,
   };
 };
 
-export const authFail = (error) => {
+export const adminAuthFail = (error) => {
   return {
-    type: actionTypes.AUTH_FAIL,
+    type: actionTypes.ADMIN_FAIL,
     error: error,
   };
 };
 
-export const logout = () => {
-  localStorage.removeItem("token");
+export const adminLogout = () => {
+  localStorage.removeItem("adminToken");
   localStorage.removeItem("expirationDate");
   return {
-    type: actionTypes.AUTH_LOGOUT,
+    type: actionTypes.ADMIN_LOGOUT,
   };
 };
 
 export const checkAuthTimeout = (expirationTime) => {
   return (dispatch) => {
     setTimeout(() => {
-      dispatch(logout());
+      dispatch(adminLogout());
     }, expirationTime * 1000);
   };
 };
 
-export const authLogin = (username, password) => {
+export const adminLogin = (username, password) => {
   return (dispatch) => {
-    dispatch(authStart());
+    dispatch(adminAuthStart());
     axios
-      .post(loginURL, {
+      .post(adminLoginURL, {
         username: username,
         password: password,
       })
       .then((res) => {
-        const token = res.data.token;
+        const adminToken = res.data.token;
         console.log(res.data);
         const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        localStorage.setItem("token", token);
+        localStorage.setItem("adminToken", adminToken);
         localStorage.setItem("expirationDate", expirationDate);
-        dispatch(authSuccess(token));
+        dispatch(adminAuthSuccess(adminToken));
         dispatch(checkAuthTimeout(3600));
         window.location.reload();
       })
       .catch((err) => {
-        dispatch(authFail(err));
+        console.log(err.response.data.non_field_errors[0]);
+        dispatch(adminAuthFail(err));
       });
   };
 };
 
-export const authSignup = (
+export const adminSignup = (
   username,
   email,
   first_name,
@@ -75,9 +76,9 @@ export const authSignup = (
   password2
 ) => {
   return (dispatch) => {
-    dispatch(authStart());
+    dispatch(adminAuthStart());
     axios
-      .post(registerURL, {
+      .post(adminRegisterURL, {
         username: username,
         email: email,
         first_name: first_name,
@@ -87,32 +88,28 @@ export const authSignup = (
         password2: password2,
       })
       .then((res) => {
-        const token = res.data.token;
+        const adminToken = res.data.token;
         const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        localStorage.setItem("token", token);
+        localStorage.setItem("adminToken", adminToken);
         localStorage.setItem("expirationDate", expirationDate);
-        dispatch(authSuccess(token));
-        dispatch(checkAuthTimeout(3600));
-        window.location.reload();
       })
       .catch((err) => {
-        dispatch(authFail(err));
+        dispatch(adminAuthFail(err));
       });
   };
 };
 
-
-export const authCheckState = () => {
+export const authAdminCheckState = () => {
   return (dispatch) => {
-    const token = localStorage.getItem("token");
-    if (token === undefined) {
-      dispatch(logout());
+    const adminToken = localStorage.getItem("adminToken");
+    if (adminToken === undefined) {
+      dispatch(adminLogout());
     } else {
       const expirationDate = new Date(localStorage.getItem("expirationDate"));
       if (expirationDate <= new Date()) {
-        dispatch(logout());
+        dispatch(adminLogout());
       } else {
-        dispatch(authSuccess(token));
+        dispatch(adminAuthSuccess(adminToken));
         dispatch(
           checkAuthTimeout(
             (expirationDate.getTime() - new Date().getTime()) / 1000

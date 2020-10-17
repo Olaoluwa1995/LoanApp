@@ -9,7 +9,7 @@ import {
 } from "semantic-ui-react";
 import { connect } from "react-redux";
 import { NavLink, Redirect } from "react-router-dom";
-import { authLogin } from "../store/actions/auth";
+import { adminLogin } from "../store/actions/adminAuth";
 import { Card } from "antd";
 
 class LoginForm extends React.Component {
@@ -46,10 +46,10 @@ class LoginForm extends React.Component {
   };
 
   render() {
-    const { error, loading, token } = this.props;
+    const { error, loading, adminToken } = this.props;
     const { username, password, visible } = this.state;
-    if (token) {
-      return <Redirect to="/" />;
+    if (adminToken) {
+      return <Redirect to="/all-loans" />;
     }
     return (
       <Transition visible={visible} animation="slide left" duration={1000}>
@@ -112,7 +112,7 @@ class LoginForm extends React.Component {
                       marginTop: 10,
                     }}
                   >
-                    New to us? <NavLink to="/signup">Sign Up</NavLink>
+                    New to us? <NavLink to="/admin-signup">Sign Up</NavLink>
                   </div>
                 </React.Fragment>
               </Card>
@@ -126,15 +126,15 @@ class LoginForm extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    loading: state.auth.loading,
-    error: state.auth.error,
-    token: state.auth.token,
+    loading: state.adminAuth.loading,
+    error: state.adminAuth.error,
+    adminToken: state.adminAuth.adminToken,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    login: (username, password) => dispatch(authLogin(username, password)),
+    login: (username, password) => dispatch(adminLogin(username, password)),
   };
 };
 

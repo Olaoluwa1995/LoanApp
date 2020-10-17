@@ -11,13 +11,20 @@ import {
   userLoanListURL,
   passwordUpdateURL,
 } from "../constants";
-import { authAxios } from "../utils";
+import { adminAxios } from "../utils";
 import { Avatar, Upload, message, Modal, Button, Card, Drawer } from "antd";
 import logo from "../logo.svg";
-import { logout } from "../store/actions/auth";
+import { adminLogout, adminSignup } from "../store/actions/adminAuth";
 
-class Profile extends React.Component {
+class AdminProfile extends React.Component {
   state = {
+    username: "",
+    email: "",
+    first_name: "",
+    last_name: "",
+    phone: "",
+    password: "",
+    password2: "",
     userID: null,
     profile: [],
     User: [],
@@ -27,6 +34,7 @@ class Profile extends React.Component {
     drawerVisible: false,
     visible: false,
     passwordVisible: false,
+    addAdminVisible: false,
     Data: {
       last_name: "",
       first_name: "",
@@ -55,7 +63,7 @@ class Profile extends React.Component {
   }
 
   handleFetchUserID = () => {
-    authAxios
+    adminAxios
       .get(userIDURL)
       .then((res) => {
         if (this._isMounted) {
@@ -69,7 +77,7 @@ class Profile extends React.Component {
   };
 
   handleFetchUserLoans = () => {
-    authAxios
+    adminAxios
       .get(userLoanListURL)
       .then((res) => {
         if (this._isMounted) {
@@ -84,7 +92,7 @@ class Profile extends React.Component {
 
   handleFetchProfile = (profileID) => {
     this.setState({ loading: true });
-    authAxios
+    adminAxios
       .get(profileDetailURL(profileID))
       .then((res) => {
         if (this._isMounted) {
@@ -100,7 +108,7 @@ class Profile extends React.Component {
 
   handleFetchProfileImage = (profileID) => {
     this.setState({ loading: true });
-    authAxios
+    adminAxios
       .get(profileImageDetailURL(profileID))
       .then((res) => {
         if (this._isMounted) {
@@ -128,7 +136,7 @@ class Profile extends React.Component {
     this.setState({ saving: true });
     e.preventDefault();
     const { Data, userID } = this.state;
-    authAxios
+    adminAxios
       .put(profileUpdateURL(Data.id), { ...Data, userID })
       .then((res) => {
         this.setState({
@@ -161,7 +169,7 @@ class Profile extends React.Component {
     } else if (new_password !== confirm_password) {
       message.error("Passwords don't match");
     } else {
-      authAxios
+      adminAxios
         .put(passwordUpdateURL(Data.id), { old_password, new_password, userID })
         .then((res) => {
           this.setState({
@@ -188,7 +196,7 @@ class Profile extends React.Component {
       this.state.fileList[0],
       this.state.fileList[0].name
     );
-    authAxios
+    adminAxios
       .put(imageUpdateURL(Data.id), formData)
       .then((res) => {
         this.setState({
@@ -222,6 +230,7 @@ class Profile extends React.Component {
       imageVisible: true,
     });
   };
+
   handleProfileImageCancel = () => this.setState({ imageVisible: false });
 
   showDrawer = () => {
@@ -248,12 +257,58 @@ class Profile extends React.Component {
     });
   };
 
-  handlePasswordChange = (e) => {
+  showAddAdminModal = () => {
+    this.setState({
+      addAdminVisible: true,
+    });
+  };
+
+  addAdminModalCancel = () => {
+    this.setState({
+      addAdminVisible: false,
+    });
+  };
+
+  handleAddAdminSubmit = (e) => {
+    e.preventDefault();
+    const {
+      username,
+      email,
+      first_name,
+      last_name,
+      phone,
+      password,
+      password2,
+    } = this.state;
+    this.props.signup(
+      username,
+      email,
+      first_name,
+      last_name,
+      phone,
+      password,
+      password2
+    );
+    this.addAdminModalCancel();
+  };
+
+  handleFormChange = (e) => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
+
+  handleFormChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
   render() {
     const {
+      username,
+      email,
+      first_name,
+      last_name,
+      phone,
+      password,
+      password2,
       loading,
       profile,
       loans,
@@ -261,6 +316,7 @@ class Profile extends React.Component {
       imageVisible,
       drawerVisible,
       passwordVisible,
+      addAdminVisible,
       Data,
       success,
       visible,
@@ -269,8 +325,8 @@ class Profile extends React.Component {
       confirm_password,
     } = this.state;
 
-    const { isAuthenticated } = this.props;
-    if (!isAuthenticated) {
+    const { isAdminAuthenticated } = this.props;
+    if (!isAdminAuthenticated) {
       return <Redirect to="/login" />;
     }
 
@@ -345,6 +401,116 @@ class Profile extends React.Component {
       </Modal>
     );
 
+    const AddAdminModal = (
+      <Modal
+        visible={addAdminVisible}
+        title="Add An Admin"
+        onOk={this.handleAddAdminSubmit}
+        onCancel={this.addAdminModalCancel}
+        footer={[
+          <Button
+            key="back"
+            onClick={this.addAdminModalCancel}
+            shape="round"
+            size="middle"
+            type="danger"
+          >
+            Return
+          </Button>,
+          <Button
+            shape="round"
+            icon={<Icon name="upload" />}
+            size="middle"
+            key="submit"
+            type="primary"
+            loading={loading}
+            onClick={this.handleAddAdminSubmit}
+          >
+            Create
+          </Button>,
+        ]}
+      >
+        <React.Fragment>
+          <Form size="large" onSubmit={this.handleAddAdminSubmit}>
+            <Segment stacked>
+              <Form.Input
+                required
+                onChange={this.handleFormChange}
+                value={username}
+                name="username"
+                fluid
+                icon="user"
+                iconPosition="left"
+                placeholder="Username"
+              />
+              <Form.Input
+                required
+                onChange={this.handleFormChange}
+                value={email}
+                name="email"
+                fluid
+                icon="mail"
+                iconPosition="left"
+                placeholder="E-mail address"
+              />
+              <Form.Input
+                required
+                onChange={this.handleFormChange}
+                value={first_name}
+                name="first_name"
+                fluid
+                icon="user"
+                iconPosition="left"
+                placeholder="First name"
+              />
+              <Form.Input
+                required
+                onChange={this.handleFormChange}
+                value={last_name}
+                name="last_name"
+                fluid
+                icon="user"
+                iconPosition="left"
+                placeholder="Last name"
+              />
+              <Form.Input
+                required
+                onChange={this.handleFormChange}
+                value={phone}
+                name="phone"
+                fluid
+                icon="phone"
+                iconPosition="left"
+                placeholder="Phone Number"
+              />
+              <Form.Input
+                required
+                onChange={this.handleFormChange}
+                fluid
+                value={password}
+                name="password"
+                icon="lock"
+                iconPosition="left"
+                placeholder="Password"
+                type="password"
+              />
+              <Form.Input
+                required
+                onChange={this.handleFormChange}
+                fluid
+                value={password2}
+                name="password2"
+                icon="lock"
+                iconPosition="left"
+                placeholder="Confirm password"
+                type="password"
+              />
+            </Segment>
+          </Form>
+        </React.Fragment>
+      </Modal>
+    );
+
     const cover = (
       <div>
         <Avatar
@@ -376,6 +542,19 @@ class Profile extends React.Component {
             >
               Edit
             </Button>
+            {profile.superuser_status === true && (
+              <Button
+                type="primary"
+                shape="round"
+                style={{ float: "right" }}
+                icon={<Icon name="add user" />}
+                onClick={this.showAddAdminModal}
+              >
+                Add An Admin
+              </Button>
+            )}
+
+            {AddAdminModal}
             <h3 style={{ marginBottom: 0, marginTop: 10 }}>
               {profile.first_name} {profile.last_name}
             </h3>
@@ -509,7 +688,7 @@ class Profile extends React.Component {
               <Form success={success} onSubmit={this.handleChangePassword}>
                 <Form.Input
                   required
-                  onChange={this.handlePasswordChange}
+                  onChange={this.handleFormChange}
                   fluid
                   value={old_password}
                   name="old_password"
@@ -520,7 +699,7 @@ class Profile extends React.Component {
                 />
                 <Form.Input
                   required
-                  onChange={this.handlePasswordChange}
+                  onChange={this.handleFormChange}
                   fluid
                   value={new_password}
                   name="new_password"
@@ -531,7 +710,7 @@ class Profile extends React.Component {
                 />
                 <Form.Input
                   required
-                  onChange={this.handlePasswordChange}
+                  onChange={this.handleFormChange}
                   fluid
                   value={confirm_password}
                   name="confirm_password"
@@ -542,6 +721,7 @@ class Profile extends React.Component {
                 />
               </Form>
             </Modal>
+
             <div
               style={{
                 marginTop: 30,
@@ -571,14 +751,34 @@ class Profile extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    isAuthenticated: state.auth.token !== null,
+    isAdminAuthenticated: state.adminAuth.adminToken !== null,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    logout: () => dispatch(logout()),
+    logout: () => dispatch(adminLogout()),
+    signup: (
+      username,
+      email,
+      first_name,
+      last_name,
+      phone,
+      password,
+      password2
+    ) =>
+      dispatch(
+        adminSignup(
+          username,
+          email,
+          first_name,
+          last_name,
+          phone,
+          password,
+          password2
+        )
+      ),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps)(AdminProfile);

@@ -9,8 +9,8 @@ import {
 } from "semantic-ui-react";
 import { connect } from "react-redux";
 import { NavLink, Redirect } from "react-router-dom";
-import { authSignup } from "../store/actions/auth";
-import { Card, message } from "antd";
+import { adminSignup } from "../store/actions/adminAuth";
+import { Card } from "antd";
 
 class RegistrationForm extends React.Component {
   state = {
@@ -51,21 +51,15 @@ class RegistrationForm extends React.Component {
       password,
       password2,
     } = this.state;
-    if (password.length < 8) {
-      message.error("Password must not be less than 8 characters");
-    } else if (password !== password2) {
-      message.error("Passwords don't match");
-    } else {
-      this.props.signup(
-        username,
-        email,
-        first_name,
-        last_name,
-        phone,
-        password,
-        password2
-      );
-    }
+    this.props.signup(
+      username,
+      email,
+      first_name,
+      last_name,
+      phone,
+      password,
+      password2
+    );
   };
 
   handleChange = (e) => {
@@ -83,9 +77,10 @@ class RegistrationForm extends React.Component {
       password2,
       visible,
     } = this.state;
-    const { error, loading, token } = this.props;
-    if (token) {
-      return <Redirect to="/card-payment" />;
+    const { error, loading, adminToken } = this.props;
+    console.log(adminToken);
+    if (adminToken) {
+      return <Redirect to="/all-loans" />;
     }
     return (
       <Transition visible={visible} animation="zoom" duration={1400}>
@@ -197,7 +192,7 @@ class RegistrationForm extends React.Component {
                     }}
                   >
                     Already have an account?{" "}
-                    <NavLink to="/login">Login</NavLink>
+                    <NavLink to="/admin-login">Login</NavLink>
                   </div>
                 </React.Fragment>
               </Card>
@@ -211,9 +206,9 @@ class RegistrationForm extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    loading: state.auth.loading,
-    error: state.auth.error,
-    token: state.auth.token,
+    loading: state.adminAuth.loading,
+    error: state.adminAuth.error,
+    adminToken: state.adminAuth.adminToken,
   };
 };
 
@@ -229,7 +224,7 @@ const mapDispatchToProps = (dispatch) => {
       password2
     ) =>
       dispatch(
-        authSignup(
+        adminSignup(
           username,
           email,
           first_name,
