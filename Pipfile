@@ -47,9 +47,9 @@ django-celery-results = "*"
 django-redis-cache = "*"
 djangorestframework-jwt = "*"
 psycopg2 = "*"
-celery = "*"
-vine = "*"
+vine = "==1.3.0"
 whitenoise = "==5.0.1"
+celery = "==4.4.7"
 
 [requires]
 python_version = "3.7"
