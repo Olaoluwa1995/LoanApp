@@ -49,6 +49,7 @@ djangorestframework-jwt = "*"
 psycopg2 = "*"
 celery = "*"
 vine = "*"
+whitenoise = "==5.0.1"
 
 [requires]
 python_version = "3.7"
